@@ -30,6 +30,12 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		$Sender->SQL->Database->DatabasePrefix = $prefix;
 	}
 
+	# https://github.com/JasonBarnabe/DiscussionAbout/issues/1
+	# Same as above, for profile
+	#public function DiscussionModel_BeforeGetByUser_Handler($Sender) {
+	#	$this->DiscussionModel_BeforeGet_Handler($Sender);
+	#}
+
 	# Remove announcements when we're filtering
 	public function DiscussionModel_AfterAddColumns_Handler($Sender) {
 		if (!empty($this->GetFilterParamString())) {
@@ -120,6 +126,12 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	public function CategoriesController_AfterDiscussionTitle_Handler($Sender) {
 		$this->DiscussionsController_AfterDiscussionTitle_Handler($Sender);
 	}
+
+	# https://github.com/JasonBarnabe/DiscussionAbout/issues/1
+	# And the profile discussion list
+	#public function ProfileController_AfterDiscussionTitle_Handler($Sender) {
+	#	$this->DiscussionsController_AfterDiscussionTitle_Handler($Sender);
+	#}
 
 	# Show item name in individual discussion
 	public function DiscussionController_AfterDiscussionTitle_Handler($Sender) {
