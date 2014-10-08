@@ -5,7 +5,8 @@ $PluginInfo['DiscussionAbout'] = array(
 	'Description' => 'Have discussions about a non-Vanilla item in your database.',
 	'Version' => '1.0',
 	'Author' => "Jason Barnabe",
-	'AuthorEmail' => 'jason.barnabe@gmail.com'
+	'AuthorEmail' => 'jason.barnabe@gmail.com',
+	'MobileFriendly' => TRUE
 );
 
 require_once dirname(__FILE__).'/config.php';
