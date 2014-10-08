@@ -37,10 +37,19 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	#	$this->DiscussionModel_BeforeGet_Handler($Sender);
 	#}
 
-	# Remove announcements when we're filtering
 	public function DiscussionModel_AfterAddColumns_Handler($Sender) {
+		# Remove announcements when we're filtering
 		if (!empty($this->GetFilterParamString())) {
 			$Sender->RemoveAnnouncements($Sender->EventArguments['Data']);
+		}
+		# Include related name in discussion name when rendering RSS
+		if (Gdn::Request()->OutputFormat() == 'rss') {
+			$Discussions = $Sender->EventArguments['Data'];
+			foreach ($Discussions->Result() as $Discussion) {
+				if (isset($Discussion->DiscussionAboutName) && $Discussion->DiscussionAboutName) {
+					$Discussion->Name.=' - '.$Discussion->DiscussionAboutName;
+				}
+			}
 		}
 	}
 
