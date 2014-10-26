@@ -14,7 +14,7 @@ require_once dirname(__FILE__).'/config.php';
 class DiscussionAboutPlugin extends Gdn_Plugin {
 
 	# Load item name for discussion index and apply filters if parameters passed
-	public function DiscussionModel_BeforeGet_Handler($Sender) {
+	public function DiscussionModel_BeforeGet_Handler($Sender, $JoinToUser = FALSE) {
 		$prefix = $Sender->SQL->Database->DatabasePrefix;
 		$Sender->SQL->Database->DatabasePrefix = '';
 		$Sender->SQL->Join($this->GetConfig('ItemTable').' discussionaboutitem', 'd.'.$this->GetConfig('ForeignKey').' = discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), 'left');
@@ -33,9 +33,9 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 
 	# https://github.com/JasonBarnabe/DiscussionAbout/issues/1
 	# Same as above, for profile
-	#public function DiscussionModel_BeforeGetByUser_Handler($Sender) {
-	#	$this->DiscussionModel_BeforeGet_Handler($Sender);
-	#}
+	public function DiscussionModel_BeforeGetByUser_Handler($Sender) {
+		$this->DiscussionModel_BeforeGet_Handler($Sender);
+	}
 
 	public function DiscussionModel_AfterAddColumns_Handler($Sender) {
 		# Remove announcements when we're filtering
@@ -127,8 +127,10 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	# Show item name after discussion name in discussion index
 	public function DiscussionsController_AfterDiscussionTitle_Handler($Sender) {
 		$Discussion = $Sender->EventArguments['Discussion'];
-		if (is_numeric($Discussion->{$this->GetConfig('ForeignKey')}) && $Discussion->{$this->GetConfig('ForeignKey')} != 0) {
-			echo '<span class="DiscussionAboutListDiscussion"> - '.htmlspecialchars($Discussion->DiscussionAboutName).'</span>';
+		if (isset($Discussion->DiscussionAboutName)) {
+			if (is_numeric($Discussion->{$this->GetConfig('ForeignKey')}) && $Discussion->{$this->GetConfig('ForeignKey')} != 0) {
+				echo '<span class="DiscussionAboutListDiscussion"> - '.htmlspecialchars($Discussion->DiscussionAboutName).'</span>';
+			}
 		}
 	}
 
@@ -137,11 +139,10 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		$this->DiscussionsController_AfterDiscussionTitle_Handler($Sender);
 	}
 
-	# https://github.com/JasonBarnabe/DiscussionAbout/issues/1
 	# And the profile discussion list
-	#public function ProfileController_AfterDiscussionTitle_Handler($Sender) {
-	#	$this->DiscussionsController_AfterDiscussionTitle_Handler($Sender);
-	#}
+	public function ProfileController_AfterDiscussionTitle_Handler($Sender) {
+		$this->DiscussionsController_AfterDiscussionTitle_Handler($Sender);
+	}
 
 	# Show item name in individual discussion
 	public function DiscussionController_AfterDiscussionTitle_Handler($Sender) {
