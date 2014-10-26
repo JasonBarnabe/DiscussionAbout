@@ -22,7 +22,7 @@
 
 If you like DiscussionAbout, consider making a donation. Suggested amount is $5.
 
-* [Donate by PayPal or credit card](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jason.barnabe@gmail.com&item_name=Contribution+for+User+Agent)
+* [Donate by PayPal or credit card](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jason.barnabe@gmail.com&item_name=Contribution+for+DiscussionAbout)
 * Donate BitCoin to 1L12TQTtDECrbbqWDZmnM69bfuJUVFVr6v
 
 ## License
