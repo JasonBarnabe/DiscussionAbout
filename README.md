@@ -18,6 +18,13 @@
 4. Edit the configuration in config.php. The relevant documentation is in there.
 5. Enable the plug-in.
 
+## Donations
+
+If you like DiscussionAbout, consider making a donation. Suggested amount is $5.
+
+* [Donate by PayPal or credit card](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jason.barnabe@gmail.com&item_name=Contribution+for+User+Agent)
+* Donate BitCoin to 1L12TQTtDECrbbqWDZmnM69bfuJUVFVr6v
+
 ## License
 
 DiscussionAbout is licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html).
