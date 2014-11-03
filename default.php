@@ -101,10 +101,10 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 
 		$Title = 'Discussions';
 		# If there's no rows, we won't have the data necessary to do this
-		if ($Row->CountDiscussions > 1) {
+		if ($Row->CountDiscussions > 0) {
 			$FilterNames = [];
 			if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
-				$FilterNames[] = 'about '.$Row->DiscussionAboutItemName;
+				$FilterNames[] = sprintf(T('DiscussionAbout.AboutItemHeader', 'about %s'), $Row->DiscussionAboutItemName);
 			}
 			foreach ($AdditionalFilterColumnNames as $ColumnName) {
 				$FilterNames[] = sprintf($ColumnName[1], $Row->{$ColumnName[0]});
@@ -153,9 +153,9 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 				$URL = $URLFunction($Sender->Discussion->{$this->GetConfig('ForeignKey')});
 			}
 			if (isset($URL)) {
-				echo '<span class="DiscussionAboutShowDiscussion">About: <a href="'.$URL.'">'.htmlspecialchars($Sender->Discussion->DiscussionAboutName).'</a></span>';
+				echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), '<a href="'.htmlspecialchars($URL).'">'.htmlspecialchars($Sender->Discussion->DiscussionAboutName).'</a>').'</span>';
 			} else {
-				echo '<span class="DiscussionAboutShowDiscussion">About: '.htmlspecialchars($Sender->Discussion->DiscussionAboutName).'</span>';
+				echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), htmlspecialchars($Sender->Discussion->DiscussionAboutName)).'</span>';
 			}
 		}
 	}
@@ -173,14 +173,30 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		if ($this->GetItemID($Sender)) {
 			$DiscussionAboutName = $this->GetDiscussionAboutName($Sender);
 			if (!isset($Sender->Discussion)) {
+				$URLFunction = $this->GetConfig('ItemIDToURL');
+				$URL = null;
+				if (isset($URLFunction)) {
+					$URL = $URLFunction($this->GetItemID($Sender));
+				}
 				# add item name to title
-				$Sender->EventArguments['Options'] .= '<script>document.getElementById("DiscussionForm").getElementsByTagName("h1")[0].innerHTML += " about <i>'.htmlspecialchars($DiscussionAboutName).'</i>"</script>';
+				$ItemNameCode = null;
+				if (isset($URL)) {
+					$ItemNameCode = sprintf(T('DiscussionAbout.AboutItem', 'About: %s'), '<a href="'.htmlspecialchars($URL).'">'.htmlspecialchars($DiscussionAboutName).'</a>');
+				} else {
+					$ItemNameCode = sprintf(T('DiscussionAbout.AboutItem', 'About: %s'), htmlspecialchars($DiscussionAboutName));
+				}
+				$Sender->EventArguments['Options'] .= '<script>'.
+					'var span = document.createElement("span");'.
+					'span.innerHTML = '.json_encode($ItemNameCode).';'.
+					'var header = document.getElementById("DiscussionForm").getElementsByTagName("h1")[0];'.
+					'header.parentNode.insertBefore(span, header.nextSibling);'.
+					'</script>';
 			}
 		}
 		# Input to set the item ID
 		if (Gdn::Session()->CheckPermission('Vanilla.Discussions.Edit')) {
-			$Sender->EventArguments['Options'] .= "<p>Item ID: <input type='text' name='".$this->GetConfig('ForeignKey')."' value='".htmlspecialchars($this->GetItemID($Sender))."'></p>";
-		}	else if ($this->GetItemID($Sender)) {
+			$Sender->EventArguments['Options'] .= "<p>".T('Item ID:')." <input type='text' name='".$this->GetConfig('ForeignKey')."' value='".htmlspecialchars($this->GetItemID($Sender))."'></p>";
+		} else if ($this->GetItemID($Sender)) {
 			$Sender->EventArguments['Options'] .= "<input type='hidden' name='".$this->GetConfig('ForeignKey')."' value='".htmlspecialchars($this->GetItemID($Sender))."'>";
 		}
 	}
