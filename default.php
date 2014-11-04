@@ -13,20 +13,27 @@ require_once dirname(__FILE__).'/config.php';
 
 class DiscussionAboutPlugin extends Gdn_Plugin {
 
+	public $Config = null;
+
+	public function __construct() {
+		parent::__construct();
+		$this->Config = DiscussionAboutPluginConfig();
+	}
+
 	# Load item name for discussion index and apply filters if parameters passed
 	public function DiscussionModel_BeforeGet_Handler($Sender, $JoinToUser = FALSE) {
 		$prefix = $Sender->SQL->Database->DatabasePrefix;
 		$Sender->SQL->Database->DatabasePrefix = '';
-		$Sender->SQL->Join($this->GetConfig('ItemTable').' discussionaboutitem', 'd.'.$this->GetConfig('ForeignKey').' = discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), 'left');
-		$Sender->SQL->Select('discussionaboutitem.'.$this->GetConfig('ItemName'), '', 'DiscussionAboutName');
-		foreach ($this->GetConfig('AdditionalFilters') as $filter_param => $filter_options) {
+		$Sender->SQL->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left');
+		$Sender->SQL->Select('discussionaboutitem.'.$this->Config['ItemName'], '', 'DiscussionAboutName');
+		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
 			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
 				$Sender->SQL->Where('discussionaboutitem.'.$filter_column, $_REQUEST[$filter_param]);
 			}
 		}
-		if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
-			$Sender->SQL->Where('discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), $_REQUEST[$this->GetConfig('ItemParameter')]);
+		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
+			$Sender->SQL->Where('discussionaboutitem.'.$this->Config['ItemPrimaryKey'], $_REQUEST[$this->Config['ItemParameter']]);
 		}
 		$Sender->SQL->Database->DatabasePrefix = $prefix;
 	}
@@ -76,15 +83,15 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 
 		$DiscussionModel->SQL
 			->Select('d.DiscussionID', 'count', 'CountDiscussions')
-			->Select('discussionaboutitem.'.$this->GetConfig('ItemName'), '', 'DiscussionAboutItemName')
+			->Select('discussionaboutitem.'.$this->Config['ItemName'], '', 'DiscussionAboutItemName')
 			->From('GDN_Discussion d')
-			->Join($this->GetConfig('ItemTable').' discussionaboutitem', 'd.'.$this->GetConfig('ForeignKey').' = discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), 'left');
+			->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left');
 
-		if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
-			$DiscussionModel->SQL->Where('discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), $_REQUEST[$this->GetConfig('ItemParameter')]);
+		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
+			$DiscussionModel->SQL->Where('discussionaboutitem.'.$this->Config['ItemPrimaryKey'], $_REQUEST[$this->Config['ItemParameter']]);
 		}
 		$AdditionalFilterColumnNames = [];
-		foreach ($this->GetConfig('AdditionalFilters') as $filter_param => $filter_options) {
+		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
 			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
 				$DiscussionModel->SQL->Where('discussionaboutitem.'.$filter_column, $_REQUEST[$filter_param]);
@@ -103,7 +110,7 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		# If there's no rows, we won't have the data necessary to do this
 		if ($Row->CountDiscussions > 0) {
 			$FilterNames = [];
-			if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
+			if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
 				$FilterNames[] = sprintf(T('DiscussionAbout.AboutItemHeader', 'about %s'), $Row->DiscussionAboutItemName);
 			}
 			foreach ($AdditionalFilterColumnNames as $ColumnName) {
@@ -119,8 +126,8 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	public function DiscussionModel_BeforeGetID_Handler($Sender) {
 		$prefix = $Sender->SQL->Database->DatabasePrefix;
 		$Sender->SQL->Database->DatabasePrefix = '';
-		$Sender->SQL->Join($this->GetConfig('ItemTable').' discussionaboutitem', 'd.'.$this->GetConfig('ForeignKey').' = discussionaboutitem.'.$this->GetConfig('ItemPrimaryKey'), 'left');
-		$Sender->SQL->Select('discussionaboutitem.'.$this->GetConfig('ItemName'), '', 'DiscussionAboutName');
+		$Sender->SQL->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left');
+		$Sender->SQL->Select('discussionaboutitem.'.$this->Config['ItemName'], '', 'DiscussionAboutName');
 		$Sender->SQL->Database->DatabasePrefix = $prefix;
 	}
 
@@ -128,7 +135,7 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	public function DiscussionsController_AfterDiscussionTitle_Handler($Sender) {
 		$Discussion = $Sender->EventArguments['Discussion'];
 		if (isset($Discussion->DiscussionAboutName)) {
-			if (is_numeric($Discussion->{$this->GetConfig('ForeignKey')}) && $Discussion->{$this->GetConfig('ForeignKey')} != 0) {
+			if (is_numeric($Discussion->{$this->Config['ForeignKey']}) && $Discussion->{$this->Config['ForeignKey']} != 0) {
 				echo '<span class="DiscussionAboutListDiscussion"> - '.htmlspecialchars($Discussion->DiscussionAboutName).'</span>';
 			}
 		}
@@ -146,11 +153,11 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 
 	# Show item name in individual discussion
 	public function DiscussionController_AfterDiscussionTitle_Handler($Sender) {
-		if (isset($Sender->Discussion->{$this->GetConfig('ForeignKey')}) && $Sender->Discussion->{$this->GetConfig('ForeignKey')} != 0) {
-			$URLFunction = $this->GetConfig('ItemIDToURL');
+		if (isset($Sender->Discussion->{$this->Config['ForeignKey']}) && $Sender->Discussion->{$this->Config['ForeignKey']} != 0) {
+			$URLFunction = $this->Config['ItemIDToURL'];
 			$URL = null;
 			if (isset($URLFunction)) {
-				$URL = $URLFunction($Sender->Discussion->{$this->GetConfig('ForeignKey')});
+				$URL = $URLFunction($Sender->Discussion->{$this->Config['ForeignKey']});
 			}
 			if (isset($URL)) {
 				echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), '<a href="'.htmlspecialchars($URL).'">'.htmlspecialchars($Sender->Discussion->DiscussionAboutName).'</a>').'</span>';
@@ -162,7 +169,7 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 
 	# Hide category selector if we're forcing to a category
 	public function PostController_BeforeFormInputs_Handler($Sender) {
-		if ($this->GetItemID($Sender) && $this->GetConfig('ForceToCategoryID') != null) {
+		if ($this->GetItemID($Sender) && $this->Config['ForceToCategoryID'] != null) {
 			$Sender->ShowCategorySelector = false;
 		}
 	}
@@ -173,7 +180,7 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		if ($this->GetItemID($Sender)) {
 			$DiscussionAboutName = $this->GetDiscussionAboutName($Sender);
 			if (!isset($Sender->Discussion)) {
-				$URLFunction = $this->GetConfig('ItemIDToURL');
+				$URLFunction = $this->Config['ItemIDToURL'];
 				$URL = null;
 				if (isset($URLFunction)) {
 					$URL = $URLFunction($this->GetItemID($Sender));
@@ -195,37 +202,37 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		}
 		# Input to set the item ID
 		if (Gdn::Session()->CheckPermission('Vanilla.Discussions.Edit')) {
-			$Sender->EventArguments['Options'] .= "<p>".T('Item ID:')." <input type='text' name='".$this->GetConfig('ForeignKey')."' value='".htmlspecialchars($this->GetItemID($Sender))."'></p>";
+			$Sender->EventArguments['Options'] .= "<p>".T('Item ID:')." <input type='text' name='".$this->Config['ForeignKey']."' value='".htmlspecialchars($this->GetItemID($Sender))."'></p>";
 		} else if ($this->GetItemID($Sender)) {
-			$Sender->EventArguments['Options'] .= "<input type='hidden' name='".$this->GetConfig('ForeignKey')."' value='".htmlspecialchars($this->GetItemID($Sender))."'>";
+			$Sender->EventArguments['Options'] .= "<input type='hidden' name='".$this->Config['ForeignKey']."' value='".htmlspecialchars($this->GetItemID($Sender))."'>";
 		}
 	}
 
 	# Fix things up on saving a discussion
 	public function DiscussionModel_BeforeSaveDiscussion_Handler($Sender) {
 		# Handle empty item id
-		if ($Sender->EventArguments['FormPostValues'][$this->GetConfig('ForeignKey')] == '') {
-			$Sender->EventArguments['FormPostValues'][$this->GetConfig('ForeignKey')] = null;
+		if ($Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] == '') {
+			$Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] = null;
 		}
 		# Force to category
-		if ($Sender->EventArguments['FormPostValues'][$this->GetConfig('ForeignKey')] != null && $this->GetConfig('ForceToCategoryID') != null) {
-			$Sender->EventArguments['FormPostValues']['CategoryID'] = $this->GetConfig('ForceToCategoryID');
+		if ($Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] != null && $this->Config['ForceToCategoryID'] != null) {
+			$Sender->EventArguments['FormPostValues']['CategoryID'] = $this->Config['ForceToCategoryID'];
 		}
 	}
 
 	# Return the ID of the item, whether from an existing discussion or from a request parameter
 	private function GetItemID($Sender) {
-		if (isset($Sender->Discussion) && is_numeric($Sender->Discussion->{$this->GetConfig('ForeignKey')})) {
-			if ($Sender->Discussion->{$this->GetConfig('ForeignKey')} == '0') {
+		if (isset($Sender->Discussion) && is_numeric($Sender->Discussion->{$this->Config['ForeignKey']})) {
+			if ($Sender->Discussion->{$this->Config['ForeignKey']} == '0') {
 				return null;
 			}
-			return $Sender->Discussion->{$this->GetConfig('ForeignKey')};
+			return $Sender->Discussion->{$this->Config['ForeignKey']};
 		}
-		if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
-			if ($_REQUEST[$this->GetConfig('ItemParameter')] == '0') {
+		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
+			if ($_REQUEST[$this->Config['ItemParameter']] == '0') {
 				return null;
 			}
-			return $_REQUEST[$this->GetConfig('ItemParameter')];
+			return $_REQUEST[$this->Config['ItemParameter']];
 		}
 		return null;
 	}
@@ -233,22 +240,17 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	# Return the display name of the item, whether from an existing discussion or from a request parameter
 	private function GetDiscussionAboutName($Sender) {
 		$ItemID = $this->GetItemID($Sender);
-		$Results = $Sender->Database->Query('SELECT '.$this->GetConfig('ItemName').' DiscussionAboutName FROM '.$this->GetConfig('ItemTable').' WHERE '.$this->GetConfig('ItemPrimaryKey').' = '.$ItemID)->Result('DATASET_TYPE_ARRAY');
+		$Results = $Sender->Database->Query('SELECT '.$this->Config['ItemName'].' DiscussionAboutName FROM '.$this->Config['ItemTable'].' WHERE '.$this->Config['ItemPrimaryKey'].' = '.$ItemID)->Result('DATASET_TYPE_ARRAY');
 		return $Results[0]->DiscussionAboutName;
-	}
-
-	private function GetConfig($Name) {
-		global $DiscussionAboutConfig;
-		return $DiscussionAboutConfig[$Name];
 	}
 
 	# Returns a query string of all the filter parameters we're concerned with
 	private function GetFilterParamString() {
 		$FilterParams = '';
-		if (isset($_REQUEST[$this->GetConfig('ItemParameter')]) && is_numeric($_REQUEST[$this->GetConfig('ItemParameter')])) {
-			$FilterParams .= $this->GetConfig('ItemParameter').'='.$_REQUEST[$this->GetConfig('ItemParameter')];
+		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
+			$FilterParams .= $this->Config['ItemParameter'].'='.$_REQUEST[$this->Config['ItemParameter']];
 		}
-		foreach ($this->GetConfig('AdditionalFilters') as $filter_param => $filter_options) {
+		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
 			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
 				if (!empty($FilterParams)) {
