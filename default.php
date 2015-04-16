@@ -3,7 +3,7 @@
 $PluginInfo['DiscussionAbout'] = array(
 	'Name' => 'DiscussionAbout',
 	'Description' => 'Have discussions about a non-Vanilla item in your database.',
-	'Version' => '1.0',
+	'Version' => '1.1',
 	'Author' => "Jason Barnabe",
 	'AuthorEmail' => 'jason.barnabe@gmail.com',
 	'MobileFriendly' => TRUE
