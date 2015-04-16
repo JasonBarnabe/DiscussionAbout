@@ -205,13 +205,19 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 			$Sender->EventArguments['Options'] .= "<p>".T('Item ID:')." <input type='text' name='".$this->Config['ForeignKey']."' value='".htmlspecialchars($this->GetItemID($Sender))."'></p>";
 		} else if ($this->GetItemID($Sender)) {
 			$Sender->EventArguments['Options'] .= "<input type='hidden' name='".$this->Config['ForeignKey']."' value='".htmlspecialchars($this->GetItemID($Sender))."'>";
+		} else if (isset($this->Config['UserEntryLabel'])) {
+			$Sender->EventArguments['Options'] .= "<label for='".$this->Config['ForeignKey']."'>".$this->Config['UserEntryLabel']."</label><input id='".$this->Config['ForeignKey']."' name='".$this->Config['ForeignKey']."-userentry' class='InputBox BigInput'>";
 		}
 	}
 
 	# Fix things up on saving a discussion
 	public function DiscussionModel_BeforeSaveDiscussion_Handler($Sender) {
+		$UserEntryValue = $Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']."-userentry"];
+		$ItemIDToURLFunction = $this->Config['UserEntryToID'];
+		if ($UserEntryValue && $ItemIDToURLFunction) {
+			$Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] = $ItemIDToURLFunction($UserEntryValue);
 		# Handle empty item id
-		if ($Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] == '') {
+		} else if ($Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] == '') {
 			$Sender->EventArguments['FormPostValues'][$this->Config['ForeignKey']] = null;
 		}
 		# Force to category

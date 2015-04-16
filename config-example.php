@@ -30,6 +30,18 @@ function DiscussionAboutPluginConfig() {
 		return '/articles/'.$ID;
 	};
 
+	// If the item request parameter doesn't exist when creating a new thread, set this to have a field allowing the user to specify the item.
+	$Config['UserEntryLabel'] = "If you want to discuss a specific article, ignore Category above and enter the article's URL here:<br>";
+
+	// Turn the user's item entry when creating a new thread into an item ID. Return null to not set the item ID.
+	$Config['UserEntryToID'] = function($Value) {
+		preg_match('/https?:\/\/example\.com\/articles\/([0-9]+).*/', $Value, $Matches);
+		if (count($Matches) != 2) {
+			return null;
+		}
+		return $Matches[1];
+	};
+
 	// Force any discussion with an item to a specific category. Null to not do that.
 	$Config['ForceToCategoryID'] = null;
 
