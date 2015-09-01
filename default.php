@@ -166,7 +166,7 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 			}
 			$Text = $Sender->Discussion->DiscussionAboutName;
 			$TextFunction = array_key_exists('DefaultName', $this->Config) ? $this->Config['DefaultName'] : null;
-			if (!isset($text) && isset($TextFunction)) {
+			if (!isset($Text) && isset($TextFunction)) {
 				$Text = $TextFunction($Sender->Discussion->{$this->Config['ForeignKey']});
 			}
 			if (isset($Text)) {
