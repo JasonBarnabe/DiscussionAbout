@@ -134,9 +134,14 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 	# Show item name after discussion name in discussion index
 	public function DiscussionsController_AfterDiscussionTitle_Handler($Sender) {
 		$Discussion = $Sender->EventArguments['Discussion'];
-		if (isset($Discussion->DiscussionAboutName)) {
+		$Text = $Discussion->DiscussionAboutName;
+		$TextFunction = array_key_exists('DefaultName', $this->Config) ? $this->Config['DefaultName'] : null;
+		if (!isset($Text) && isset($TextFunction)) {
+			$Text = $TextFunction($Discussion->{$this->Config['ForeignKey']});
+		}
+		if (isset($Text)) {
 			if (is_numeric($Discussion->{$this->Config['ForeignKey']}) && $Discussion->{$this->Config['ForeignKey']} != 0) {
-				echo '<span class="DiscussionAboutListDiscussion"> - '.htmlspecialchars($Discussion->DiscussionAboutName).'</span>';
+				echo '<span class="DiscussionAboutListDiscussion"> - '.htmlspecialchars($Text).'</span>';
 			}
 		}
 	}
@@ -159,10 +164,17 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 			if (isset($URLFunction)) {
 				$URL = $URLFunction($Sender->Discussion->{$this->Config['ForeignKey']});
 			}
-			if (isset($URL)) {
-				echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), '<a href="'.htmlspecialchars($URL).'">'.htmlspecialchars($Sender->Discussion->DiscussionAboutName).'</a>').'</span>';
-			} else {
-				echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), htmlspecialchars($Sender->Discussion->DiscussionAboutName)).'</span>';
+			$Text = $Sender->Discussion->DiscussionAboutName;
+			$TextFunction = array_key_exists('DefaultName', $this->Config) ? $this->Config['DefaultName'] : null;
+			if (!isset($text) && isset($TextFunction)) {
+				$Text = $TextFunction($Sender->Discussion->{$this->Config['ForeignKey']});
+			}
+			if (isset($Text)) {
+				if (isset($URL)) {
+					echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), '<a href="'.htmlspecialchars($URL).'">'.htmlspecialchars($Text).'</a>').'</span>';
+				} else {
+					echo '<span class="DiscussionAboutShowDiscussion">'.sprintf(T('DiscussionAbout.AboutItemSubtitle', 'About: %s'), htmlspecialchars($Text)).'</span>';
+				}
 			}
 		}
 	}

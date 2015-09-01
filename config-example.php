@@ -30,6 +30,11 @@ function DiscussionAboutPluginConfig() {
 		return '/articles/'.$ID;
 	};
 
+	// Returns a string to use to describe the item when ItemName is null (e.g. there is no associated item). Return null to not render anything for the item.
+	$Config['DefaultName'] = function($ID) {
+		return '(Deleted item '.$ID.')';
+	};
+
 	// If the item request parameter doesn't exist when creating a new thread, set this to have a field allowing the user to specify the item.
 	$Config['UserEntryLabel'] = "If you want to discuss a specific article, ignore Category above and enter the article's URL here:<br>";
 
