@@ -60,14 +60,6 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		}
 	}
 
-	# Add filter parameters to paginate links
-	public function DiscussionsController_AfterBuildPager_Handler($Sender) {
-		$FilterParams = $this->GetFilterParamString();
-		if (!empty($FilterParams)) {
-			$Sender->SetData('_PagerUrl', $Sender->Data('_PagerUrl').'?'.$FilterParams);
-		}
-	}
-
 	# Update discussion count and title for index
 	public function DiscussionsController_BeforeBuildPager_Handler($Sender) {
 		# Only do this if some of the parameters we care about are set
@@ -75,6 +67,9 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		if (empty($FilterParams)) {
 			return;
 		}
+
+		# Add filter parameters to paginate links
+		$Sender->SetData('_PagerUrl', 'discussions/{Page}?'.$FilterParams);
 
 		$DiscussionModel = new DiscussionModel();
 
