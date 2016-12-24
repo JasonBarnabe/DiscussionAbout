@@ -80,7 +80,8 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 			->Select('d.DiscussionID', 'count', 'CountDiscussions')
 			->Select('discussionaboutitem.'.$this->Config['ItemName'], '', 'DiscussionAboutItemName')
 			->From('GDN_Discussion d')
-			->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left');
+			->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left')
+			->GroupBy('DiscussionAboutItemName');
 
 		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
 			$DiscussionModel->SQL->Where('discussionaboutitem.'.$this->Config['ItemPrimaryKey'], $_REQUEST[$this->Config['ItemParameter']]);
