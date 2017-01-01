@@ -3,10 +3,11 @@
 $PluginInfo['DiscussionAbout'] = array(
 	'Name' => 'DiscussionAbout',
 	'Description' => 'Have discussions about a non-Vanilla item in your database.',
-	'Version' => '1.1',
+	'Version' => '1.2',
 	'Author' => "Jason Barnabe",
 	'AuthorEmail' => 'jason.barnabe@gmail.com',
-	'MobileFriendly' => TRUE
+	'MobileFriendly' => TRUE,
+	'License' => 'GNU GPL2'
 );
 
 require_once dirname(__FILE__).'/config.php';
