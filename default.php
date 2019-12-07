@@ -28,9 +28,16 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		$Sender->SQL->Join($this->Config['ItemTable'].' discussionaboutitem', 'd.'.$this->Config['ForeignKey'].' = discussionaboutitem.'.$this->Config['ItemPrimaryKey'], 'left');
 		$Sender->SQL->Select('discussionaboutitem.'.$this->Config['ItemName'], '', 'DiscussionAboutName');
 		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
-			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
-				$Sender->SQL->Where('discussionaboutitem.'.$filter_column, $_REQUEST[$filter_param]);
+				if (isset($filter_options['dont_respect_followed_categories']) && $filter_options['dont_respect_followed_categories']) {
+					unset($Sender->EventArguments['Wheres']['d.CategoryID']);
+				}
+				if (isset($filter_options['filter_column'])) {
+					$Sender->SQL->Where('discussionaboutitem.'.$filter_options['filter_column'], $_REQUEST[$filter_param]);
+				}
+				if (isset($filter_options['filter_sql'])) {
+					$filter_options['filter_sql']($Sender->SQL, $_REQUEST[$filter_param]);
+				}
 			}
 		}
 		if (isset($_REQUEST[$this->Config['ItemParameter']]) && is_numeric($_REQUEST[$this->Config['ItemParameter']])) {
@@ -89,11 +96,12 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 		}
 		$AdditionalFilterColumnNames = [];
 		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
-			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
-				$DiscussionModel->SQL->Where('discussionaboutitem.'.$filter_column, $_REQUEST[$filter_param]);
-				if (isset($filter_options['index_title_sql'])) {
-					$AdditionalFilterColumnNames[] = $filter_options['index_title_sql']($DiscussionModel->SQL);
+				if (isset($filter_options['filter_column'])) {
+					$DiscussionModel->SQL->Where('discussionaboutitem.'.$filter_options['filter_column'], $_REQUEST[$filter_param]);
+				}
+				if (isset($filter_options['filter_sql'])) {
+					$filter_options['filter_sql']($DiscussionModel->SQL, $_REQUEST[$filter_param]);
 				}
 			}
 		}
@@ -266,7 +274,6 @@ class DiscussionAboutPlugin extends Gdn_Plugin {
 			$FilterParams .= $this->Config['ItemParameter'].'='.$_REQUEST[$this->Config['ItemParameter']];
 		}
 		foreach ($this->Config['AdditionalFilters'] as $filter_param => $filter_options) {
-			$filter_column = $filter_options['filter_column'];
 			if (isset($_REQUEST[$filter_param])) {
 				if (!empty($FilterParams)) {
 					$FilterParams .= '&';

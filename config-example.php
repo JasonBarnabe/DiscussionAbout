@@ -53,7 +53,9 @@ function DiscussionAboutPluginConfig() {
 	// Additional possible filters.
 	// parameter_name => [
 	//   filter_column => (Column in ItemTable to filter by.)
+	//   filter_sql => (Function to make changes to the query - for when it's more complicated than juts a single WHERE. Arguments are a Vanilla SQL object and the value to filter by.
 	//   index_title_sql => (Function that loads a portion of the resulting page's title. The only argument a Vanilla SQL object; this object should be used to include the "name" of the filter in the query. Your item's table name will be aliased as "discussionaboutitem". Do apply the Where - this is done separately. Return an array of [ColumnName, FormatString], where FormatString is something like "by %s", which is the text that will be added to the title of the page.
+	//   dont_respect_followed_categories => If true, when the filter is applied, ignore the user's followed categories setting and show discussions from all categories.
 	// ]
 	$Config['AdditionalFilters'] = [
 		'author' => [
