@@ -1,3 +1,5 @@
+**This plugin is no longer maintained. It was last confirmed to work with Vanilla 2.3.**
+
 [DiscussionAbout](http://vanillaforums.org/addon/discussionabout-plugin-1.0) is a [Vanilla Forums](http://vanillaforums.org/) plugin that lets you associate Vanilla discussions to a non-Vanilla item in your database of your choosing. For example, if you have "articles" in your database users can:
 
 - Create a discussion about an article by visiting /yourforum/post/?article=123.
